@@ -1,0 +1,63 @@
+name: terraform_plan_and_cost_estimation
+
+om:
+  workflow_call:
+    inputs:   
+      job_name:
+        required: false
+        type: string
+        default: 'Terraform Plan and Cost Estimation'
+      runs_on:
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+
+jobs:
+  terraform_plan_and_cost_estimation:
+    name: ${{ inputs.job_name }}
+    runs-on: ${{ inputs.runs_on }}
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: terraform setup
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: infracost setup
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+          currency: USD
+
+      - name: terraform init
+        id: init
+        run: terraform init -input=false
+        working-directory: ${{ env.working_directory }}
+
+      - name: terraform fmt
+        id: fmt
+        run: terraform fmt -check -recursive
+        working-directory: ${{ env.working_directory }}
+
+      - name: terraform validate
+        id: validate
+        run: terraform validate
+        working-directory: ${{ env.working_directory }}
+
+      - name: terraform plan
+        id: plan
+        run: terraform plan -input=false -out=tfplan
+        working-directory: ${{ env.working_directory }}
+
+      - name: infracost analysis
+        run: infracost breakdown --path=tfplan
+        working-directory: ${{ env.working_directory }}
