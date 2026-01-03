@@ -11,6 +11,9 @@ on:
         required: false
         type: string
         default: 'ubuntu-latest'
+      working_directory:
+        required: false
+        type: string
 
 jobs:
   terraform-apply:
@@ -35,9 +38,9 @@ jobs:
       - name: terraform init
         id: init
         run: terraform init -input=false
-        working-directory: ${{ env.working_directory}}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: terraform apply
         id: apply
         run: terraform apply -input=false -auto-approve
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}

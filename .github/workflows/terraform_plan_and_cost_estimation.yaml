@@ -11,6 +11,9 @@ on:
         required: false
         type: string
         default: 'ubuntu-latest'
+      working_directory:
+        required: false
+        type: string
 
 jobs:
   terraform_plan_and_cost_estimation:
@@ -41,23 +44,23 @@ jobs:
       - name: terraform init
         id: init
         run: terraform init -input=false
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: terraform fmt
         id: fmt
         run: terraform fmt -check -recursive
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: terraform validate
         id: validate
         run: terraform validate
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: terraform plan
         id: plan
         run: terraform plan -input=false -out=tfplan
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: infracost analysis
         run: infracost breakdown --path=tfplan
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}

@@ -11,6 +11,9 @@ on:
         required: false
         type: string
         default: 'ubuntu-latest'
+      working_directory:
+        required: false
+        type: string
 
 jobs:
   terraform_security_checks:
@@ -33,7 +36,7 @@ jobs:
       - name: tflint scan
         id: tflint
         run: tflint --init && tflint
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
         continue-on-error: true
 
       - name: trivy scan
@@ -41,22 +44,22 @@ jobs:
           trivy config . --tf-vars terraform.tfvars \
             --severity HIGH,CRITICAL --exit-code 1 \
             --format table
-        working-directory: ${{ env.working_directory }}
+        working-directory: ${{ inputs.working_directory }}
         continue-on-error: true
 
       - name: tfsec scan
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           version: latest
-          working_directory: ${{ env.working_directory }}
-          additional_args: --tfvars-file=${{ env.working_directory }}/terraform.tfvars
+          working_directory: ${{ inputs.working_directory }}
+          additional_args: --tfvars-file=${{ inputs.working_directory }}/terraform.tfvars
           soft_fail: true
 
       - name: checkov scan
         id: checkov
         uses: bridgecrewio/checkov-action@v12
         with:
-          directory: ${{ env.working_directory }}
+          directory: ${{ inputs.working_directory }}
           framework: terraform
           var_file: terraform.tfvars
           output_format: cli
