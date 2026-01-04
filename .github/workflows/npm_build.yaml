@@ -1,4 +1,4 @@
-name: react.js
+name: 'npm build'
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
       job_name:
         required: true
         type: string
-        default: 'Software Composition Analysis (Dependency Security)'
+        default: 'Build and Artifact Package'
       runs_on:
         required: true
         type: string
@@ -18,8 +18,9 @@ on:
         required: true
         type: string
 
-jobs:  
-  software_composition_analysis:
+
+jobs:
+  application_build:
     name: ${{ inputs.job_name }}
     runs-on: ${{ inputs.runs_on }}
     steps:
@@ -32,11 +33,14 @@ jobs:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.cache }}
 
-      - name: Install Dependency
-        run: npm ci
+      - name: Install Dependencies
+        run: npm Install
 
-      - name: Dependency Vulnerability Scan (Retire.js)
-        run: |
-          npm install -g retire
-          retire --exitwith 1
-        continue-on-error: true
+      - name: Build Artifact
+        run: npm run build
+
+      - name: Publist Build Artifact
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: reactui-${{ github.run_id }}
+          path: build/*
