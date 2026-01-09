@@ -17,6 +17,12 @@ on:
       cache:
         required: true
         type: string
+      artifacts_name:
+        required: true
+        type: string
+      artifacts_path:
+        required: true
+        type: string
 
 
 jobs:
@@ -39,8 +45,8 @@ jobs:
       - name: Build Artifact
         run: npm run build
 
-      - name: Publist Build Artifact
+      - name: Publish Build Artifact
         uses: actions/upload-artifact@v6.0.0
         with:
-          name: reactui-${{ github.run_id }}
-          path: build/*
+          name: ${{ inputs.artifacts_name }}
+          path: ${{ inputs.artifacts_path }}
