@@ -45,6 +45,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.cache }}
+          cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
 
       - name: Super-Linter
         uses: super-linter/super-linter@v7.1.0
