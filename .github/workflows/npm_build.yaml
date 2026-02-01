@@ -52,14 +52,13 @@ jobs:
         run: npm run build
 
       - name: Prepare Deployment Package
-        working-directory: ${{ inputs.working_directory }}
         run: |
           rm -rf package
           mkdir -p package
-          cp -r frontend/build/* package/
+          cp -r ${{ inputs.working_directory }}/build/* package/
 
       - name: Publish Build Artifact
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.artifacts_name }}
-          path: ${{ inputs.working_directory }}/${{ inputs.artifacts_path }}
+          path: ${{ inputs.artifacts_path }}
